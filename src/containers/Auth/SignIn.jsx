@@ -11,6 +11,7 @@ import { signInWithGoogle } from '../../store';
 import './index.css'
 import { toast } from 'react-toastify';
 import { selectToken, selectUser } from '../../store/user/user.selector';
+import { selectRefreshInterval } from '../../store/popup/popup.selector';
 
 
 export const SignIn = (() => {
@@ -22,6 +23,7 @@ export const SignIn = (() => {
 
   const dispatch = useDispatch()
   const token = useSelector(selectToken)
+  const refresher = useSelector(selectRefreshInterval)
   const [login, { isLoading }] = api.useSigninMutation()
   const [ refreshToken ] = api.useRefreshTokenMutation()
   const [ signinGoogle ] = api.useSigninGoogleMutation()

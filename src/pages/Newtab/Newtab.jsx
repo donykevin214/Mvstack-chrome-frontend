@@ -19,22 +19,16 @@
 // export default Newtab;
 
 import React from 'react';
-import GoogleLogin from 'react-google-login';
 
-const Newtab = (() => {
-   const responseGoogle = (resp) => {
-    console.log('response Google', resp)
-  }
+const Newtab = (() => {  
  
   return (
-    <>      
-      <GoogleLogin
-        clientId="794879507611-dt0gc34te2eqpr9crmequ3irih52t1qr.apps.googleusercontent.com" //CLIENTID NOT CREATED YET
-        buttonText="LOGIN WITH GOOGLE"
-        onSuccess={responseGoogle}
-        onFailure={responseGoogle}
-      />
-    </>
+    <div className='flex items-center justify-center h-screen'>
+      <p className='text-2xl'>
+        Welcome to our MVP Extension
+      </p>     
+      
+    </div>
   );
 });
 
