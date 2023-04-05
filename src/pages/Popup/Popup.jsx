@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SignIn, SignUp } from '../../containers/Auth';
 import { Welcome } from '../../containers/Main/Welcome';
@@ -16,6 +16,16 @@ import 'react-toastify/dist/ReactToastify.css';
 // };
 
 const Popup = () => {  
+  useEffect(()=>{
+
+    chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+      console.log('message', message)
+      sendResponse({
+          data: "I am fine, thank you. How is life in the background?"
+      }); 
+  });
+  
+  },[])
   return (
     <div className='h-full p-4 bg-gray-700'>
       <Router>

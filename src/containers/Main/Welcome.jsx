@@ -7,13 +7,14 @@ import { api } from '../../store/api';
 import { useMemo } from 'react'
 import { selectRefreshInterval } from '../../store/popup/popup.selector'
 import { useNavigate } from 'react-router'
+import { useEffect } from 'react'
 
 export const Welcome = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const token = useSelector(selectToken)
   const refresher = useSelector(selectRefreshInterval)
-  const [ signout, { isLoading } ] = api.useSignoutMutation()
+  const [ signout ] = api.useSignoutMutation()
   const handleClickSignout = async () => {
     const resp = await signout({
       token:token.JWT_token, 
@@ -28,7 +29,13 @@ export const Welcome = () => {
       clearInterval(refresher);
     }
   }
-
+  useEffect(() =>{
+    chrome.tabs.query({}, function(tabs) {
+      for (let i = 0; i < tabs.length; i++) {
+        chrome.tabs.sendMessage(tabs[i].id, { token: token });
+      }
+    });
+  });
   return (
     <div className='flex items-center justify-center min-h-[350px]'>
       <div>

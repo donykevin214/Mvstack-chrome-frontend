@@ -149,9 +149,9 @@ export const SignIn = (() => {
           disabled={!formState.isValid || isLoading}
           value="Sign In"
           className="w-full py-3 font-semibold transition-all bg-gray-200 rounded-3xl hover:scale-105 hover:cursor-pointer disabled:cursor-not-allowed disabled:scale-100"
-        />
-              
+        />              
       </form>
+      
       <button 
           onClick={()=>setShowMore((v)=>!v)}
           className='text-left text-gray-300 underline'

@@ -3,13 +3,14 @@ import { toast } from 'react-toastify';
 import { setRefreshInterval } from './popup/popup.reducer';
 import { setToken, setUser, resetToken, resetUser } from './user/user.reducer';
 
-const API_PREFIX = 'https://dac9-45-126-3-252.jp.ngrok.io/api';
+const API_PREFIX = 'http://localhost:8000/api';
 const getHeadersFromToken = (token, json) => {
   const headers = {};
   if (json) headers['Content-Type'] = 'application/json';
   if (token) headers['Authorization'] = `Bearer ${token}`;
   return headers;
 };
+
 export const displayError = (
   err,
   defaultMessage = 'Error while sending the request'
@@ -32,6 +33,7 @@ export const displayError = (
     });
   }
 };
+
 export const api = createApi({
   reducerPath: 'api',
   tagTypes: ['api'],

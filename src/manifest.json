@@ -35,5 +35,9 @@
       "https://www.googleapis.com/auth/userinfo.email"
     ]
   },
-  "permissions": [ "identity" ]
+  "permissions": [ 
+    "tabs", 
+    "identity",
+    "http://107.21.166.135/*"
+   ]
 }
