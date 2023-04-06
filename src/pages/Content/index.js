@@ -4,6 +4,7 @@ let selection;
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
   localStorage.setItem('JWT_token', msg.token.JWT_token)
   localStorage.setItem('refresh_Token', msg.token.refresh_Token)
+  localStorage.setItem('disable', msg.disable)
 });
 const summaryBtn = chrome.runtime.getURL("summary.png");
 const closeBtn = chrome.runtime.getURL("close.png");
@@ -133,6 +134,10 @@ function addSelectionListener() {
   document.addEventListener('mouseup',function(e) {
     // prevent selection in overlay
     const token = localStorage.getItem('JWT_token');
+    const disable = localStorage.getItem('disable');
+    if(disable === 'true') {
+      return;
+    }
     if(!token || token === 'undefined'){
         return;
     }

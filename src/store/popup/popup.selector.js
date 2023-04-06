@@ -4,3 +4,4 @@ const selectPopupState = (state) => state.popup
 
 export const selectCurPosition = createSelector(selectPopupState, (state) => state.curPosition)
 export const selectRefreshInterval = createSelector(selectPopupState, (state) => state.refreshInterval)
+export const selectDisable = createSelector(selectPopupState, (state) => state.disable)

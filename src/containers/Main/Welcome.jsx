@@ -1,11 +1,12 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setCurPosition } from '../../store/popup/popup.reducer'
+import Switch from "react-switch";
+import { setDisable } from '../../store/popup/popup.reducer'
 import { resetToken, resetUser } from '../../store/user/user.reducer'
 import { selectToken } from '../../store/user/user.selector'
 import { api } from '../../store/api';
 import { useMemo } from 'react'
-import { selectRefreshInterval } from '../../store/popup/popup.selector'
+import { selectRefreshInterval, selectDisable } from '../../store/popup/popup.selector'
 import { useNavigate } from 'react-router'
 import { useEffect } from 'react'
 
@@ -14,6 +15,7 @@ export const Welcome = () => {
   const navigate = useNavigate()
   const token = useSelector(selectToken)
   const refresher = useSelector(selectRefreshInterval)
+  const checked = useSelector(selectDisable)
   const [ signout ] = api.useSignoutMutation()
   const handleClickSignout = async () => {
     const resp = await signout({
@@ -29,18 +31,23 @@ export const Welcome = () => {
       clearInterval(refresher);
     }
   }
+  const handleChange = () => {
+    dispatch(setDisable(!checked));
+    localStorage.setItem('disable', !checked)
+  }
   useEffect(() =>{
     chrome.tabs.query({}, function(tabs) {
       for (let i = 0; i < tabs.length; i++) {
-        chrome.tabs.sendMessage(tabs[i].id, { token: token });
+        chrome.tabs.sendMessage(tabs[i].id, { token: token, disable: checked});
       }
     });
   });
   return (
     <div className='flex items-center justify-center min-h-[350px]'>
       <div>
-        <p className='mb-6 text-2xl font-bold text-center text-white uppercase sm:text-4xl sm:leading-14'>
-          You are logged in screen !
+        <p className='flex justify-center items-center mb-6 text-xl font-bold text-center text-white uppercase sm:text-lg sm:leading-14'>
+          <span className='mr-2'>Disable?</span>
+          <Switch onChange={handleChange} checked={checked}/>
         </p>
         <button
           onClick={handleClickSignout}

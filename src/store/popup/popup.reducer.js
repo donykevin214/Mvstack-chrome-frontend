@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  refreshInterval:''
+  refreshInterval:'',
+  disable: false,
 };
 
 export const popupSlice = createSlice({
@@ -11,9 +12,12 @@ export const popupSlice = createSlice({
     setRefreshInterval: (state, { payload }) => {
       state.refreshInterval = payload;
     },
+    setDisable: (state, { payload }) => {
+      state.disable = payload;
+    },
   },
 });
 
-export const { setRefreshInterval } = popupSlice.actions;
+export const { setRefreshInterval, setDisable } = popupSlice.actions;
 
 export default popupSlice.reducer;

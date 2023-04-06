@@ -132,26 +132,27 @@ export const SignIn = (() => {
           placeholder="Password"
           {...register('password', { required: true, minLength: 6 })}
         />
-        <div className="flex justify-center gap-10 font-semibold text-gray-300 text-brand-200">
-          {/* <button type="button">Forgot Password?</button> */}
-          <p className="flex justify-center font-semibold text-gray-300 ">
-          Create a new account? &nbsp;
-          <button
-            className="underline"    
-            onClick={handleClickSignup}        
-          >
-            SignUp
-          </button>
-        </p>
-        </div>
+        
         <input
           type="submit"
           disabled={!formState.isValid || isLoading}
           value="Sign In"
           className="w-full py-3 font-semibold transition-all bg-gray-200 rounded-3xl hover:scale-105 hover:cursor-pointer disabled:cursor-not-allowed disabled:scale-100"
-        />              
+        />
+        <div className="flex justify-center gap-10 font-semibold text-gray-300 text-brand-200">
+          {/* <button type="button">Forgot Password?</button> */}
+          <p className="flex justify-center font-semibold text-gray-300 ">
+            Create a new account? &nbsp;
+            <button
+              className="underline"    
+              onClick={handleClickSignup}        
+            >
+              SignUp
+            </button>
+          </p>
+        </div>
       </form>
-      
+
       <button 
           onClick={()=>setShowMore((v)=>!v)}
           className='text-left text-gray-300 underline'
