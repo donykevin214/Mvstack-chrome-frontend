@@ -1,251 +1,264 @@
-import { printLine } from './modules/print';
+// import { printLine } from './modules/print';
 import axios from "axios";
-
-printLine("11Using the 'printLine' function from the Print Module");
+let selection;
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-    localStorage.setItem('JWT_token', msg.token.JWT_token)
-    localStorage.setItem('refresh_Token', msg.token.refresh_Token)
+  localStorage.setItem('JWT_token', msg.token.JWT_token)
+  localStorage.setItem('refresh_Token', msg.token.refresh_Token)
 });
-window.addEventListener("load", () => {
-    // injectOverlay();
-    // showModal();
-    // updateFontSize();
-    addSelectionListener();
-    dismissOverlayListener();
-    addMenuListeners();
-  });
-  
-  
-  const showModal = () => {
-      const modal = document.createElement("dialog");
-      modal.setAttribute(
-        "style",`
-        height: fix-content;
-        width: 80%;
-        border: none;
-        border-radius:20px;
-        background-color: #f7f7f7d6;
-        position: fixed; box-shadow: 0px 12px 48px rgba(29, 5, 64, 0.32);
-      `
-      );
-      modal.innerHTML = `
-      <div id="overlay"; style="height:100%">
-        <div id='ai-overlay-selected'>
-        <div class="overlay-content-wrapper">
-          <div id='ai-response-content' style="color:black;"></div>
-          <div id="overlay-vertical-line"></div>
-        </div>
-      </div>
-      </div>
-      <div style="position:absolute; top:4px; right:8px;">
-        <button style="font-size: 16px; border: none; background: none; color: black;">x</button>
-      </div>
-      `;
-      document.body.appendChild(modal);
-      const dialog = document.querySelector("dialog");
-      // var style = document.createElement('style');
-      // style.innerHTML = `
-      //   #ai-response-content {
-      //     color: black;
-      //   }
-      // `;
-      // document.head.appendChild(style);
-      dialog.showModal();
-      // const iframe = document.getElementById("popup-content");
-      // iframe.src = chrome.extension.getURL("index.html");
-      // iframe.frameBorder = 0;
-      dialog.querySelector("button").addEventListener("click", () => {
-        dialog.close();
-      });
-    }
-    //background.js
-    // chrome.browserAction.onClicked.addListener(function (tab) {
-    // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    // chrome.tabs.sendMessage(tabs[0].id, { type: "popup-modal" });
-    // });
+const summaryBtn = chrome.runtime.getURL("summary.png");
+const closeBtn = chrome.runtime.getURL("close.png");
+const bulletBtn = chrome.runtime.getURL("bullet.png");
 
-  function injectOverlay(){
-    const overlay = document.createElement("div");
-    overlay.setAttribute("id", "overlay");
-    
-    const injectedHtml = `
+window.addEventListener("load", () => {
+    showModal();
+    updateFontSize();
+    addSelectionListener();
+    addMenuListeners();
+});
+
+const showModal = () => {
+  const modal = document.createElement("dialog");
+  modal.setAttribute(
+    "style",`
+    height: fix-content;
+    width: 60%;
+    border-radius:20px;
+    border: 5px solid #FFFFFF;
+    background: radial-gradient(15.66% 32.32% at 98.81% 0.43%, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */, linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 7.55%, rgba(255, 255, 255, 0.42) 100%);
+    box-shadow: -30px 64px 64px rgba(37, 64, 83, 0.05);
+    backdrop-filter: blur(7px);
+    padding: 20px;
+    position: fixed; box-shadow: 0px 12px 48px rgba(29, 5, 64, 0.32);
+  `
+  );
+  modal.innerHTML = `
+    <div id="overlay"; style="height:100%">
       <div id='ai-overlay-selected'>
-        <div class="overlay-content-wrapper">
-          <div id='ai-response-content'></div>
-          <div id="overlay-vertical-line"></div>
-          <div id="overlay-menu-options-expanded">
-            <button id="menu-summary-button">Summary</button>
-            <button id="menu-bullet-button">Bullet points</button>
-            <button id="overlay-other-btn-expanded">Other</button>
-          </div>
-        </div>
-      </div>`;
-    
-    overlay.innerHTML = injectedHtml;
-    document.body.appendChild(overlay);
-  }
-  
-  
-  
-  
-  
-  function updateFontSize() {
-    const selected = document.getElementById("ai-response-content");
-    const minHeight = 200; // minimum height before font size starts scaling
-    const maxHeight = 800; // maximum height where font size is capped
-    const fontSizeMin = 16; // minimum font size
-    const fontSizeMax = 32; // maximum font size
-    const height = selected.offsetHeight;
-    let fontSize = fontSizeMax;
-    if (height < minHeight) {
-      fontSize = fontSizeMin;
-    } else if (height <= maxHeight) {
-      fontSize = ((height - minHeight) / (maxHeight - minHeight)) * (fontSizeMax - fontSizeMin) + fontSizeMin;
-    }
-    selected.style.fontSize = `${fontSize}px`;
-    window.addEventListener('resize', updateFontSize);
-  }
-  
-  
-  function addSelectionListener() {
-    document.addEventListener('mouseup',function(e) {
-      // prevent selection in overlay
-      // if (e.target.closest("#overlay")) {
-      //   return;
+      <h1 id='title-summary-bullet'>Summary</h1>
+      <div class="overlay-content-wrapper">
+        <div id='ai-response-content' style="color:black;"></div>
+        <div id="overlay-vertical-line"></div>
+        <div id="search_text" hidden></div>
+      </div>
+    </div>
+    </div>
+    <div style="position:absolute; top:10px; right:8px;">
+      <div style="display: flex; justify-content: center; justify-items: center; gap: 10px;">
+        <img src=${summaryBtn} id="menu-summary-button" style="cursor: pointer;">  
+        </img>
+        <img src=${bulletBtn} id="menu-bullet-button" style="cursor: pointer;">
+        </img>
+        <img src=${closeBtn} id="close-modal-btn-content" style="cursor: pointer;">
+        </img>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  const dialog = document.querySelector("dialog");
+  document.addEventListener(
+    "click",
+    function(event) {
+      if (
+        event.target.matches("#close-modal-btn-content")
+      ) {
+        selection = null;
+        summaryResponse = null;
+        bulletResponse = null;
+        dialog.close();
+      }
+      // else if(event.target.matches("#menu-summary-button"))
+      // {
+      //   document.getElementById("title-summary-bullet").innerHTML = 'Summary';
+      //   document.getElementById("ai-response-content").innerHTML = summaryResponse;
       // }
-  
-      
-      const selection =  getSelectionText();
-      if(selection != null && selection.length > 2){
-        showWaitingSign();
-        processSelection('summary',selection);
+      // else if(event.target.matches("#menu-bullet-button")){
+      //   document.getElementById("title-summary-bullet").innerHTML = 'Bullet Points';
+      //   if(bulletResponse){
+      //     document.getElementById("ai-response-content").innerHTML = bulletResponse
+      //   }else{
+      //     let command = "list";
+      //     if(selection === null ){
+      //       selection = document.querySelector('#search_text').textContent;
+      //     }
+      //     showWaitingSign();
+      //     processSelection("list", selection);
+      //     sendToAi(command,selection, (response) => {
+      //       removeWaitingSign();
+      //       updateFontSize();
+      //       // dismissOverlayListener();
+      //       const overlay = document.getElementById("overlay");
+      //       const selected = document.getElementById("ai-response-content");
+      //       bulletResponse = parseAiResponse(command, response.result);
+      //       selected.innerHTML = bulletResponse;
+      //       overlay.style.display = "flex";
+      //     });
+      //   }
+      // }
+      if(!event.target.closest("#overlay") && !event.target.matches("#menu-bullet-button") && !event.target.matches("#menu-summary-button")){
+        selection = null;
+        summaryResponse = null;
+        bulletResponse = null;
+        dialog.close();
       }
-      
-    },{once: false});
+    },
+    false
+  )
+}
+ const openModal = () => {
+  const dialog = document.querySelector("dialog");
+  if(!document.querySelector("dialog")['open']){
+    dialog.showModal();
   }
-  
-  function showWaitingSign(){
-    const waitingSign = document.createElement("div");
-    waitingSign.setAttribute("id", "waitingSign");
-    waitingSign.textContent = "Processing...";
-    waitingSign.style.position = "fixed";
-    waitingSign.style.bottom = "20px";
-    waitingSign.style.right = "20px";
-    document.body.appendChild(waitingSign);
+ }
+    
+function updateFontSize() {
+  const selected = document.getElementById("ai-response-content");
+  const minHeight = 200; // minimum height before font size starts scaling
+  const maxHeight = 800; // maximum height where font size is capped
+  const fontSizeMin = 16; // minimum font size
+  const fontSizeMax = 32; // maximum font size
+  const height = selected.offsetHeight;
+  let fontSize = fontSizeMax;
+  if (height < minHeight) {
+    fontSize = fontSizeMin;
+  } else if (height <= maxHeight) {
+    fontSize = ((height - minHeight) / (maxHeight - minHeight)) * (fontSizeMax - fontSizeMin) + fontSizeMin;
   }
+  selected.style.fontSize = `${fontSize}px`;
+  window.addEventListener('resize', updateFontSize);
+}
   
-  function removeWaitingSign(){
-    const waitingSign = document.getElementById("waitingSign");
-    waitingSign && waitingSign.remove();
+  
+function addSelectionListener() {
+  document.addEventListener('mouseup',function(e) {
+    // prevent selection in overlay
+    const token = localStorage.getItem('JWT_token');
+    if(!token || token === 'undefined'){
+        return;
+    }
+    if (e.target.closest("#overlay")) {
+        return;
+    }
+    
+    selection =  getSelectionText();
+    if(selection != null && selection.length > 2){
+      showWaitingSign();
+      processSelection('summary',selection);
+    }
+    
+  },{once: false});
+}
+
+function showWaitingSign(){
+  const waitingSign = document.createElement("div");
+  waitingSign.setAttribute("id", "waitingSign");
+  waitingSign.textContent = "Processing...";
+  waitingSign.style.position = "fixed";
+  waitingSign.style.bottom = "20px";
+  waitingSign.style.right = "20px";
+  document.body.appendChild(waitingSign);
+}
+
+function removeWaitingSign(){
+  const waitingSign = document.getElementById("waitingSign");
+  waitingSign && waitingSign.remove();
+}
+
+let summaryResponse = "";
+let bulletResponse = "";
+function processSelection(command, selection) {
+    sendToAi(command,selection, (response) => {
+      removeWaitingSign();
+      openModal();
+      document.getElementById('search_text').innerHTML = selection;
+      // updateFontSize();
+      // dismissOverlayListener();
+      // addMenuListeners();
+      const overlay = document.getElementById("overlay");
+      const selected = document.getElementById("ai-response-content");
+      if(command === 'summary'){
+        summaryResponse = parseAiResponse(command, response.result);
+        console.log(summaryResponse);
+        selected.innerHTML = summaryResponse;
+      }else if (command === 'list'){
+        bulletResponse = parseAiResponse(command, response.result);
+        selected.innerHTML = bulletResponse;
+      }
+      overlay.style.display = "flex";
+    });
+}
+
+// save the selected text on text variable
+function getSelectionText() {
+  var activeEl = document.activeElement;
+  var activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
+  // custom selection condition for input tags
+  if (
+    activeElTagName == "textarea" ||
+    (activeElTagName == "input" &&
+      /^(?:text|search|password|tel|url)$/i.test(activeEl.type) &&
+      typeof activeEl.selectionStart == "number")
+  ) {
+    selection =  activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
+    // normal selection for normal text
+  } else if (window.getSelection) {
+    selection =  window.getSelection().toString();
   }
+
+  return selection? selection : null;
+}
   
-  let summaryResponse = "";
-  let bulletResponse = "";
-  function processSelection(command, selection) {
-      sendToAi(command,selection, (response) => {
-        removeWaitingSign();
-        showModal();
-        updateFontSize();
-        const overlay = document.getElementById("overlay");
-        const selected = document.getElementById("ai-response-content");
-        if(command === 'summary'){
-          summaryResponse = parseAiResponse(command, response.result);
-          console.log(summaryResponse);
-          selected.innerHTML = summaryResponse;
-        }else if (command === 'list'){
-          bulletResponse = parseAiResponse(command, response.result);
-          selected.innerHTML = bulletResponse;
+async function sendToAi(command,selection, callback){
+  const JWT_token = localStorage.getItem('JWT_token');
+  const refresh_Token = localStorage.getItem('refresh_Token');
+
+  const data = {
+      command: command,
+      selection: selection,
+      refresh_Token
+  };
+  const config = {
+      headers: { 
+          'Authorization': 'Bearer ' + JWT_token,
+          'Content-Type': 'application/json'
         }
-        overlay.style.display = "flex";
-      });
+  };
+  const res = await axios.post('http://localhost:8000/api/openAI/summarize', data, config);
+  callback(res.data);
+}
+  
+function parseAiResponse(command,responseText){
+  let html = '';
+  if(command === "list"){
+    const items = responseText.split('\n').filter(Boolean).map(item => {
+      return `<li>${item.replace(/^\d+\.\s+/, '')}</li>`;
+    }).join('');
+    
+    html = `<ol>${items}</ol>`;
+  }else if(command === "summary"){
+    html = responseText;
   }
+  return html;
+}
   
-  // save the selected text on text variable
-  let selection = '';
-  function getSelectionText() {
-    var activeEl = document.activeElement;
-    var activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
-    // custom selection condition for input tags
-    if (
-      activeElTagName == "textarea" ||
-      (activeElTagName == "input" &&
-        /^(?:text|search|password|tel|url)$/i.test(activeEl.type) &&
-        typeof activeEl.selectionStart == "number")
-    ) {
-      selection =  activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
-      // normal selection for normal text
-    } else if (window.getSelection) {
-      selection =  window.getSelection().toString();
-    }
-  
-    return selection? selection : null;
-  }
-  
-  
-  
-  function dismissOverlayListener(){
-    // remove overlay on clicking outside the overlay
-    const overlay = document.getElementById("overlay");
-    overlay.onclick = function (e) {
-      if (e.target.id === "overlay") {
-        overlay.style.display = "none";
-        summaryResponse = "";
-        bulletResponse = "";
+function addMenuListeners(){
+  const selected = document.getElementById("ai-response-content");
+  const summaryButton = document.getElementById("menu-summary-button");
+  const bulletButton = document.getElementById("menu-bullet-button");
+  summaryButton.addEventListener("click", () => {
+    document.getElementById("title-summary-bullet").innerHTML = 'Summary';
+    selected.innerHTML = summaryResponse;
+  });
+
+  bulletButton.addEventListener("click", () => {
+    document.getElementById("title-summary-bullet").innerHTML = 'Bullet Points';
+    if(bulletResponse){
+      selected.innerHTML = bulletResponse
+    }else{
+      if(selection === null ){
+        selection = document.querySelector('#search_text').textContent;
       }
-    };
-  }
-  
-  
-  
-  async function sendToAi(command,selection, callback){
-    const JWT_token = localStorage.getItem('JWT_token');
-    const refresh_Token = localStorage.getItem('refresh_Token');
- 
-    const data = {
-        command: command,
-        selection: selection,
-        refresh_Token
-    };
-    const config = {
-        headers: { 
-            'Authorization': 'Bearer ' + JWT_token,
-            'Content-Type': 'application/json'
-         }
-    };
-    const res = await axios.post('http://localhost:8000/api/openAI/summarize', data, config);
-    callback(res.data);
-  }
-  
-  
-  function parseAiResponse(command,responseText){
-    let html = '';
-    if(command === "list"){
-      const items = responseText.split('\n').filter(Boolean).map(item => {
-        return `<li>${item.replace(/^\d+\.\s+/, '')}</li>`;
-      }).join('');
-      
-      html = `<ol>${items}</ol>`;
-    }else if(command === "summary"){
-      html = responseText;
+      processSelection("list", selection);
     }
-    return html;
-  }
-  
-  function addMenuListeners(){
-    const selected = document.getElementById("ai-response-content");
-    const summaryButton = document.getElementById("menu-summary-button");
-    const bulletButton = document.getElementById("menu-bullet-button");
-  
-    summaryButton.addEventListener("click", () => {
-      selected.innerHTML = summaryResponse;
-    });
-  
-    bulletButton.addEventListener("click", () => {
-      if(bulletResponse){
-        selected.innerHTML = bulletResponse
-      }else{
-        processSelection("list", selection);
-      }
-    });
-  
-  }
+  });
+}
