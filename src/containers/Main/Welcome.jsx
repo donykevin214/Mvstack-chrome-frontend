@@ -5,10 +5,11 @@ import { setDisable } from '../../store/popup/popup.reducer'
 import { resetToken, resetUser } from '../../store/user/user.reducer'
 import { selectToken } from '../../store/user/user.selector'
 import { api } from '../../store/api';
-import { useMemo } from 'react'
+// import { useMemo } from 'react'
 import { selectRefreshInterval, selectDisable } from '../../store/popup/popup.selector'
 import { useNavigate } from 'react-router'
 import { useEffect } from 'react'
+import { AiOutlineSetting } from "react-icons/ai";
 
 export const Welcome = () => {
   const dispatch = useDispatch()
@@ -35,6 +36,9 @@ export const Welcome = () => {
     dispatch(setDisable(!checked));
     localStorage.setItem('disable', !checked)
   }
+  const handleSetting = () => {
+    navigate('/setting');
+  }
   useEffect(() =>{
     chrome.tabs.query({}, function(tabs) {
       for (let i = 0; i < tabs.length; i++) {
@@ -43,19 +47,24 @@ export const Welcome = () => {
     });
   });
   return (
-    <div className='flex items-center justify-center min-h-[350px]'>
-      <div>
-        <p className='flex justify-center items-center mb-6 text-xl font-bold text-center text-white uppercase sm:text-lg sm:leading-14'>
-          <span className='mr-2'>Disable?</span>
-          <Switch onChange={handleChange} checked={checked}/>
-        </p>
-        <button
-          onClick={handleClickSignout}
-          className="flex justify-center w-full font-semibold text-gray-300 underline"
-        >
-          Sign out
-        </button> 
-      </div>       
-    </div>
+    <>
+      <div className='flex justify-end text-2xl text-white cursor-pointer'>
+          <span onClick={handleSetting}><AiOutlineSetting /></span>
+      </div>
+      <div className='flex items-center justify-center min-h-[350px]'>
+        <div>
+          <p className='flex justify-center items-center mb-6 text-xl font-bold text-center text-white uppercase sm:text-lg sm:leading-14'>
+            <span className='mr-2'>Disable?</span>
+            <Switch onChange={handleChange} checked={checked}/>
+          </p>
+          <button
+            onClick={handleClickSignout}
+            className="flex justify-center w-full font-semibold text-gray-300 underline"
+          >
+            Sign out
+          </button> 
+        </div>       
+      </div>
+    </>
   )
 }

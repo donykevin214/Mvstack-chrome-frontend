@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SignIn, SignUp } from '../../containers/Auth';
 import { Welcome } from '../../containers/Main/Welcome';
+import { Setting } from '../../containers/Main/Setting';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -34,6 +35,7 @@ const Popup = () => {
           <Route path='/signin' element={<SignIn/>} />
           <Route path='/signup' element={<SignUp/>} />
           <Route path='/welcome' element={<Welcome/>} />
+          <Route path='/setting' element={<Setting/>} />
         </Routes>
       </Router>
       {/* <MainComponent position={curPosition}/> */}
