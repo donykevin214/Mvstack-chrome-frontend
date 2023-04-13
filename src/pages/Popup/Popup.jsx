@@ -6,15 +6,16 @@ import { Setting } from '../../containers/Main/Setting';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
-// const contextClass = {
-//   success: "bg-gray-400",
-//   error: "bg-red-600",
-//   info: "bg-gray-600",
-//   warning: "bg-orange-400",
-//   default: "bg-indigo-600",
-//   dark: "bg-white-600 font-gray-300",
-// };
+import { Amplify } from 'aws-amplify';
+import awsExports from '../../pages/Popup/aws-exports';
+Amplify.configure({
+    Auth: {
+        region: awsExports.REGION,
+        userPoolId: awsExports.USER_POOL_ID,
+        userPoolWebClientId: awsExports.USER_POOL_APP_CLIENT_ID,
+        authenticationFlowType: "USER_PASSWORD_AUTH"
+    }
+})
 
 const Popup = () => {  
   useEffect(()=>{

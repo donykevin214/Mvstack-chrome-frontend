@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { Collapse } from 'react-collapse';
+import { Auth } from "aws-amplify";
 import { EMAIL_REGEX } from '../../helpers/constants.helper';
 import { api } from '../../store/api';
 import { Input } from '../UI';
@@ -10,8 +11,10 @@ import { setRefreshInterval } from '../../store/popup/popup.reducer';
 import { signInWithGoogle } from '../../store';
 import './index.css'
 import { toast } from 'react-toastify';
+import { setToken, setUser } from '../../store/user/user.reducer';
 import { selectToken, selectUser } from '../../store/user/user.selector';
 import { selectRefreshInterval } from '../../store/popup/popup.selector';
+
 
 
 export const SignIn = (() => {
@@ -22,12 +25,9 @@ export const SignIn = (() => {
   const [showMore, setShowMore] =useState(false)
 
   const dispatch = useDispatch()
-  const token = useSelector(selectToken)
-  const refresher = useSelector(selectRefreshInterval)
-  const [login, { isLoading }] = api.useSigninMutation()
-  const [ refreshToken ] = api.useRefreshTokenMutation()
+  
   const [ signinGoogle ] = api.useSigninGoogleMutation()
-
+  
   const navigate = useNavigate()
 
   const { register, handleSubmit, getValues, formState } = useForm({
@@ -38,16 +38,17 @@ export const SignIn = (() => {
   }); 
   
   const onSubmit = async () => {
-    const { data:{
-      JWT_token,
-      refresh_Token,
-      success
-    } } = await login({
-      ...getValues(),
-    });
-    if(success){
-      createRefreshTokenInterval({JWT_token, refresh_Token})
+    const {email, password} = getValues();
+    try {
+      const user = await Auth.signIn(email, password);
+      const JWT_token = (await Auth.currentSession()).getIdToken().getJwtToken()
+      localStorage.setItem('JWT_token', JWT_token);
+      dispatch(setUser(user.attribute));
+      dispatch(setToken(JWT_token));
       navigate('/welcome')
+    } catch (error) {
+      toast.error(error.message);
+      return;
     }
   };  
   const handleClickFacebookSignin = async () => {   
@@ -77,39 +78,7 @@ export const SignIn = (() => {
   }
   const handleClickSignup = () => {
     navigate('/signup')
-  }
-  const createRefreshTokenInterval = ( { JWT_token, refresh_Token } )=>{
-    const refreshInt = setInterval(async()=>{  
-      await refreshToken({ 
-        token: JWT_token,
-        data:{
-          refresh_Token: refresh_Token
-        }        
-      })
-    },[5*1000])   
-    dispatch(setRefreshInterval(refreshInt))    
-  }    
-  const user = useSelector(selectUser)   
-  
-  useEffect(()=>{
-    console.log(user?.email)
-    if(user?.email){
-      navigate('/welcome')
-      const refreshInt = setInterval(async()=>{
-        await refreshToken({ 
-          token: token.JWT_token,
-          data:{
-            refresh_Token: token.refresh_Token
-          }        
-        })
-      },[5000])   
-      dispatch(setRefreshInterval(refreshInt))       
-    }else{
-      navigate('/signin')
-    } 
-    
-    return () => clearInterval(refresher) 
-  },[])
+  }  
 
   return (
     <>
@@ -135,7 +104,7 @@ export const SignIn = (() => {
         
         <input
           type="submit"
-          disabled={!formState.isValid || isLoading}
+          disabled={!formState.isValid}
           value="Sign In"
           className="w-full py-3 font-semibold transition-all bg-gray-200 rounded-3xl hover:scale-105 hover:cursor-pointer disabled:cursor-not-allowed disabled:scale-100"
         />

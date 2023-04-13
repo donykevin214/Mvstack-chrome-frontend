@@ -35,6 +35,8 @@
   "permissions": [ 
     "tabs", 
     "identity",
-    "http://107.21.166.135/*"
+    "http://107.21.166.135/*",
+    "https://us-east-1_peqiYCdLl.auth.us-east-1.amazoncognito.com/*",
+    "https://*.amazonaws.com/*"
    ]
 }

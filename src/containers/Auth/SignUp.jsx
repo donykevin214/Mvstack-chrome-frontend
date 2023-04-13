@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { Collapse } from 'react-collapse';
 import { toast } from 'react-toastify';
+import { Auth } from "aws-amplify";
 import { EMAIL_REGEX } from '../../helpers/constants.helper';
 import { api } from '../../store/api';
 import { signinWithFaceBook, signInWithGoogle } from '../../store';
@@ -17,7 +18,7 @@ export const SignUp = (({ email }) => {
     facebook: false
   })
   
-  const [signup, { isLoading }] = api.useSignupMutation();
+  // const [signup, { isLoading }] = api.useSignupMutation();
   const [showMore, setShowMore] =useState(false)
   const { register, handleSubmit, getValues, formState } = useForm({
     defaultValues: {
@@ -30,14 +31,19 @@ export const SignUp = (({ email }) => {
   const dispatch = useDispatch()
   const onSubmit = async () => {       
     const { rePassword, ...values } = getValues();
-    const {
-      data
-    }
-    = await signup({
-      ...values
-    });
-    if(data){
-      navigate('/signin')
+    try {
+      console.log(values);
+      const user = await Auth.signUp({
+        username: values.email,
+        password: values.password,
+        autoSignIn: { enabled: true },
+      });
+      const JWT_token = (await Auth.currentSession()).getIdToken().getJwtToken()
+      console.log(JWT_token)
+      navigate('/welcome')
+    } catch (error) {
+      toast.error(error.message)
+      return error;
     }
    };
   const [ refreshToken ] = api.useRefreshTokenMutation()
@@ -131,7 +137,7 @@ export const SignUp = (({ email }) => {
         </p>
         <input
           type="submit"
-          disabled={!formState.isValid || isLoading}
+          disabled={!formState.isValid}
           value="Sign Up"
           className="w-full py-3 font-semibold transition-all bg-gray-200 rounded-3xl hover:cursor-pointer hover:scale-105 disabled:cursor-not-allowed disabled:scale-100"
         />              

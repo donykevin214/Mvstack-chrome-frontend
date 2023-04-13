@@ -2,8 +2,7 @@
 import axios from "axios";
 let selection;
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-  localStorage.setItem('JWT_token', msg.token.JWT_token)
-  localStorage.setItem('refresh_Token', msg.token.refresh_Token)
+  localStorage.setItem('JWT_token', msg.token)
   localStorage.setItem('disable', msg.disable)
 });
 const summaryBtn = chrome.runtime.getURL("summary.png");
@@ -215,12 +214,10 @@ function getSelectionText() {
   
 async function sendToAi(command,selection, callback){
   const JWT_token = localStorage.getItem('JWT_token');
-  const refresh_Token = localStorage.getItem('refresh_Token');
 
   const data = {
       command: command,
       selection: selection,
-      refresh_Token
   };
   const config = {
       headers: { 

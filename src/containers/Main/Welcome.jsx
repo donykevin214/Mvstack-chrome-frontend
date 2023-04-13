@@ -4,9 +4,8 @@ import Switch from "react-switch";
 import { setDisable } from '../../store/popup/popup.reducer'
 import { resetToken, resetUser } from '../../store/user/user.reducer'
 import { selectToken } from '../../store/user/user.selector'
-import { api } from '../../store/api';
-// import { useMemo } from 'react'
-import { selectRefreshInterval, selectDisable } from '../../store/popup/popup.selector'
+import { Auth } from "aws-amplify";
+import { selectDisable } from '../../store/popup/popup.selector'
 import { useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { AiOutlineSetting } from "react-icons/ai";
@@ -15,22 +14,12 @@ export const Welcome = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const token = useSelector(selectToken)
-  const refresher = useSelector(selectRefreshInterval)
   const checked = useSelector(selectDisable)
-  const [ signout ] = api.useSignoutMutation()
   const handleClickSignout = async () => {
-    const resp = await signout({
-      token:token.JWT_token, 
-      data:{
-        refresh_Token : token.refresh_Token
-      }
-    })
-    if(resp){
-      dispatch(resetUser());
-      dispatch(resetToken());
-      navigate('/signin')
-      clearInterval(refresher);
-    }
+    await Auth.signOut();
+    dispatch(resetUser());
+    dispatch(resetToken());
+    navigate('/signin')
   }
   const handleChange = () => {
     dispatch(setDisable(!checked));
